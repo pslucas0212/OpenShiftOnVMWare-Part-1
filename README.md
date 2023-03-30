@@ -1,2 +1,1 @@
-# OpenShiftOnVMWare-Part-1
-Installing OpenShift on vMWare and Setup
+# Installing OpenShift on vMWare and Deploying a Sample Application
