@@ -249,7 +249,15 @@ Welcome! See 'oc help' to get started.
 
 - During this OpenShift installation, OpenShift skips creating an internal image registry since it isn't aware of shareable object storage that you might be using with a quick installation like in this example.  For our openshift cluster, we will use the available VMWare datastore to define storage for our cluster.
 
-- We will enable the registry by first creating a persistent volume claim via the command line.
+Verify there is not a registry pod
+```
+$ oc get pods -n openshift-image-registry -l docker-registry=default
+```
+- Set the image registry storage as a block storage type
+```
+$ oc patch config.imageregistry.operator.openshift.io/cluster --type=merge -p '{"spec":{"rolloutStrategy":"Recreate","replicas":1}}'
+```
+- We will enable the registry by creating a persistent volume claim via the command line.
 ```
 $ cat <<EOF >> image-registry-pvc.yaml
 > apiVersion: v1
@@ -263,16 +271,23 @@ $ cat <<EOF >> image-registry-pvc.yaml
 >   resources:
 >     requests:
 >       storage: 100Gi
->   storageClassName: 'thin'
 > EOF
 $ oc apply -f image-registry-pvc.yaml 
 persistentvolumeclaim/image-registry-storage created
 ```
-
-- Next we will patch the image registry operatory config.
+- Edit the registry configuration so that it references the correct PVC:
 ```
-$ oc apply -f image-registry-pvc.yaml 
-persistentvolumeclaim/image-registry-storage created
+$ oc edit config.imageregistry.operator.openshift.io -o yaml
+```
+- Check and if necessary edit the storage section to look like the following:
+```
+storage:
+  pvc:
+    claim:
+```
+- Change the managementState Image Registry Operator configuration from Removed to Managed.
+```
+$ oc patch configs.imageregistry.operator.openshift.io cluster --type merge --patch '{"spec":{"managementState":"Managed"}}'
 ```
  - Wait a couple of minutes for the image registry pod to start.  And we are all set.
 ```
