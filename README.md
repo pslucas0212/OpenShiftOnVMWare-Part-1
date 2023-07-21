@@ -1,5 +1,7 @@
 # Installing OpenShift on vMWare and Deploying a Sample Application - Part 1
 
+**Note:** This tutorial will also work with OCP 4.13.x running on vSphere 8.0.1 - Checked on 7/21/2023
+
 [Installing OpenShift on vMWare and Deploying a Sample Application - Part 2](https://github.com/pslucas0212/OpenShiftOnVMWare-Part-2)  
 [Installing OpenShift on vMWare and Deploying a Sample Application - Part 3](https://github.com/pslucas0212/OpenShiftOnVMWare-Part-3)
 
