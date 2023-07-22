@@ -258,25 +258,30 @@ Welcome! See 'oc help' to get started.
 ```
 $ oc get pods -n openshift-image-registry -l docker-registry=default
 ```
-- Set the image registry storage as a block storage type
+- Change managementState Image Registry Operator configuration from Removed to Managed
+```
+$ oc patch configs.imageregistry.operator.openshift.io cluster --type merge --patch '{"spec":{"managementState":"Managed"}}'
+```
+- To set the image registry storage as a block storage type, patch the registry so that it uses the Recreate rollout strategy and runs with only 1 replica:
 ```
 $ oc patch config.imageregistry.operator.openshift.io/cluster --type=merge -p '{"spec":{"rolloutStrategy":"Recreate","replicas":1}}'
 ```
-- We will enable the registry by creating a persistent volume claim via the command line.
+- We will enable the registry by creating a persistent volume claim via the command line.  Create a pvc.yaml file with the following...
 ```
-$ cat <<EOF >> image-registry-pvc.yaml
-> apiVersion: v1
-> kind: PersistentVolumeClaim
-> metadata:
->   name: image-registry-storage
->   namespace: openshift-image-registry
-> spec:
->   accessModes:
->     - ReadWriteOnce
->   resources:
->     requests:
->       storage: 100Gi
-> EOF
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: image-registry-storage 
+  namespace: openshift-image-registry 
+spec:
+  accessModes:
+  - ReadWriteOnce 
+  resources:
+    requests:
+      storage: 100Gi 
+```
+- Create the PersistentVolumeClaim object
+```
 $ oc apply -f image-registry-pvc.yaml 
 persistentvolumeclaim/image-registry-storage created
 ```
@@ -284,16 +289,17 @@ persistentvolumeclaim/image-registry-storage created
 ```
 $ oc edit config.imageregistry.operator.openshift.io -o yaml
 ```
-- Check and if necessary edit the storage section to look like the following:
+- Search for the first storage instance and change it from
+```
+storage: {}
+```
+to the following:
 ```
 storage:
   pvc:
     claim:
 ```
-- Change the managementState Image Registry Operator configuration from Removed to Managed.
-```
-$ oc patch configs.imageregistry.operator.openshift.io cluster --type merge --patch '{"spec":{"managementState":"Managed"}}'
-```
+
  - Wait a couple of minutes for the image registry pod to start.  And we are all set.
 ```
 $ oc get pods -n openshift-image-registry -l docker-registry=default
