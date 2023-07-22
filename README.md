@@ -254,7 +254,7 @@ Welcome! See 'oc help' to get started.
 
 - During this OpenShift installation, OpenShift skips creating an internal image registry since it isn't aware of shareable object storage that you might be using with a quick installation like in this example.  For our openshift cluster, we will use the available VMWare datastore to define storage for our cluster.
 
-- Verify there is not a registry pod
+- Verify there is not an image registry pod
 ```
 $ oc get pods -n openshift-image-registry -l docker-registry=default
 ```
@@ -289,11 +289,11 @@ persistentvolumeclaim/image-registry-storage created
 ```
 $ oc edit config.imageregistry.operator.openshift.io -o yaml
 ```
-- Search for the first storage instance and change it from
+- Search for the first storage instance in the config file and change it from:
 ```
 storage: {}
 ```
-to the following:
+- to the following:
 ```
 storage:
   pvc:
